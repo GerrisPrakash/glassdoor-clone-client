@@ -28,7 +28,7 @@ export default function Login() {
       .then((response) => {
         console.log(response);
         localStorage.setItem("Token", response.data.token);
-        router.push("/");
+        window.location.href='/'
       })
       .catch((error) => {
         console.error(error);
