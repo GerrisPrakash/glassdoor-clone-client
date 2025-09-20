@@ -36,7 +36,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md border-b border-gray-200">
-      <div className="container mx-auto flex items-center justify-between px-4 md:px-8 pt-3">
+      <div className="container mx-auto flex items-center justify-between px-4 md:px-8 py-3">
         {/* Left: Logo */}
         <div className="flex-1">
           <Link
@@ -48,13 +48,13 @@ export default function Navbar() {
         </div>
 
         {/* Center: Nav Items */}
-        <div className="hidden md:flex flex-1 justify-center space-x-8 ">
+        <div className="hidden md:flex flex-1 justify-center space-x-8">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className="relative text-gray-900 font-medium text-lg pb-2 transition 
-                         border-b-4 border-transparent hover:border-green-600 hover:text-green-600 pb-3"
+                         border-b-4 border-transparent hover:border-green-600 hover:text-green-600"
             >
               {item.label}
             </Link>
