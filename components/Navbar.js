@@ -8,54 +8,72 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // initial check
-    setIsLoggedIn(!!localStorage.getItem("Token"));
+  const navItems = [
+    { label: "Companies", href: "/companies" },
+    { label: "Jobs", href: "/jobs" },
+    { label: "Reviews", href: "/reviews" },
+  ];
 
-    // Listen for localStorage changes (e.g., login from another tab)
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("Token"));
     const handleStorageChange = () => {
       setIsLoggedIn(!!localStorage.getItem("Token"));
     };
     window.addEventListener("storage", handleStorageChange);
-
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const logOutUser = async () => {
     try {
-      await AxiosInstance.post("logout/", {}); // optional
+      await AxiosInstance.post("logout/", {});
     } catch (error) {
       console.error("Logout failed:", error);
     }
     localStorage.removeItem("Token");
-    setIsLoggedIn(false); // immediately update navbar
+    setIsLoggedIn(false);
     window.location.href = "/";
   };
 
   return (
-    <nav className="bg-green-600 text-white shadow-md">
-      <div className="container mx-auto flex justify-between items-center px-4 md:px-8 py-3">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="font-bold text-2xl tracking-wide hover:text-green-100 transition"
-        >
-          Glassdoor Clone
-        </Link>
+    <nav className="bg-white shadow-md border-b border-gray-200">
+      <div className="container mx-auto flex items-center justify-between px-4 md:px-8 pt-3">
+        {/* Left: Logo */}
+        <div className="flex-1">
+          <Link
+            href="/"
+            className="font-bold text-2xl tracking-wide text-green-600 hover:text-green-700 transition"
+          >
+            Glassdoor Clone
+          </Link>
+        </div>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-4">
+        {/* Center: Nav Items */}
+        <div className="hidden md:flex flex-1 justify-center space-x-8 ">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="relative text-gray-900 font-medium text-lg pb-2 transition 
+                         border-b-4 border-transparent hover:border-green-600 hover:text-green-600 pb-3"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Right: Auth Buttons */}
+        <div className="hidden md:flex flex-1 justify-end items-center space-x-4">
           {!isLoggedIn ? (
             <>
               <Link
                 href="/login"
-                className="hover:bg-green-700 px-3 py-1 rounded transition"
+                className="text-gray-700 hover:text-green-600 px-3 py-1"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="bg-white text-green-600 font-medium px-3 py-1 rounded hover:bg-green-100 transition"
+                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
               >
                 Sign Up
               </Link>
@@ -63,7 +81,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={logOutUser}
-              className="bg-white text-green-600 font-medium px-3 py-1 rounded hover:bg-green-100 transition"
+              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
             >
               Logout
             </button>
@@ -72,7 +90,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden"
+          className="md:hidden text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle Menu"
         >
@@ -82,19 +100,31 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="md:hidden bg-green-700 flex flex-col space-y-2 px-4 pb-4">
+        <div className="md:hidden bg-gray-50 border-t border-gray-200 flex flex-col px-4 pb-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="py-2 text-gray-900 font-medium text-lg transition 
+                         border-b-4 border-transparent hover:border-green-600 hover:text-green-600"
+              onClick={() => setMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+
           {!isLoggedIn ? (
             <>
               <Link
                 href="/login"
-                className="block hover:bg-green-800 px-3 py-2 rounded transition"
+                className="py-2 text-gray-700 hover:text-green-600"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="block bg-white text-green-600 font-medium px-3 py-2 rounded hover:bg-green-100 transition"
+                className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign Up
@@ -106,7 +136,7 @@ export default function Navbar() {
                 logOutUser();
                 setMenuOpen(false);
               }}
-              className="block bg-white text-green-600 font-medium px-3 py-2 rounded hover:bg-green-100 transition"
+              className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
             >
               Logout
             </button>
