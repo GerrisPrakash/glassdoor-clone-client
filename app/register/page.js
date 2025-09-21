@@ -33,7 +33,7 @@ export default function Register() {
     }
 
     console.log("Form submitted:", formData);
-    AxiosInstance.post(`register/`, {
+    AxiosInstance.post(`api/users/register/`, {
       name: formData.name,
       email: formData.email,
       password: formData.password,

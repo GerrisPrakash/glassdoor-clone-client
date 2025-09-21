@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 function Home() {
   const[data, setData] = useState()
   const GetData = () => {
-    AxiosInstance.get('users/').then((res)=>{
+    AxiosInstance.get('api/users/users/').then((res)=>{
       setData(res.data)
     })
   }

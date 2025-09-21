@@ -21,7 +21,7 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Login submitted:", formData);
-    AxiosInstance.post(`login/`, {
+    AxiosInstance.post(`api/users/login/`, {
       email: formData.email,
       password: formData.password,
     })
