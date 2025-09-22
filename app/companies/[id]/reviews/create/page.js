@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ProtectedwithAuth from "@/components/ProtectedRoute";
 import AxiosInstance from "@/api/AxiosInstance";
+import { FaStar } from "react-icons/fa"; // Star icon from react-icons
 
 function CreateReviewPage() {
   const params = useParams();
@@ -12,9 +13,13 @@ function CreateReviewPage() {
 
   const [currentUser, setCurrentUser] = useState(null);
   const [company, setCompany] = useState(null);
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [globalError, setGlobalError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -35,26 +40,43 @@ function CreateReviewPage() {
     if (companyId) fetchData();
   }, [companyId]);
 
+  const isOwner = currentUser?.id === company?.created_by;
+
+  const validate = () => {
+    const errors = {};
+    if (rating < 1 || rating > 5) errors.rating = "Please select a rating.";
+    if (!reviewText.trim()) errors.reviewText = "Review cannot be empty.";
+    else if (reviewText.trim().length < 20)
+      errors.reviewText = "Review must be at least 20 characters.";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setGlobalError("");
+
+    if (!validate()) return;
+
+    setSubmitting(true);
     try {
       await AxiosInstance.post("api/reviews/", {
         company: companyId,
         rating,
-        review_text: reviewText,
+        review_text: reviewText.trim(),
       });
-      router.push(`/companies/${companyId}`); // redirect to company detail
+      router.push(`/companies/${companyId}`);
     } catch (err) {
       console.error(err);
-      alert("Failed to submit review.");
+      setGlobalError("Failed to submit review. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
   if (!company) return <p className="p-6 text-red-600">Company not found.</p>;
-
-  // Optionally, prevent company owners from reviewing their own company
-  const isOwner = currentUser?.id === company?.created_by;
   if (isOwner)
     return (
       <p className="p-6 text-red-600">
@@ -63,43 +85,79 @@ function CreateReviewPage() {
     );
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">
-        Write a Review for {company.name}
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">Rating (1–5)</label>
-          <select
-            value={rating}
-            onChange={(e) => setRating(parseInt(e.target.value))}
-            className="border px-2 py-1 rounded w-full"
+    <div className="max-w-2xl mx-auto p-6 bg-gray-50 min-h-screen">
+      <div className="bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-3xl font-semibold text-gray-800 mb-6">
+          Write a Review for {company.name}
+        </h1>
+
+        {globalError && <p className="text-red-600 mb-4">{globalError}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Star Rating */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Rating
+            </label>
+            <div className="flex gap-1 text-2xl">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  className="focus:outline-none"
+                >
+                  <FaStar
+                    className={`transition-colors ${
+                      (hoverRating || rating) >= star
+                        ? "text-yellow-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            {fieldErrors.rating && (
+              <p className="text-red-500 text-sm mt-1">{fieldErrors.rating}</p>
+            )}
+          </div>
+
+          {/* Review Text */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Review
+            </label>
+            <textarea
+              value={reviewText}
+              onChange={(e) => {
+                setReviewText(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, reviewText: "" }));
+              }}
+              rows={6}
+              className={`w-full border px-4 py-3 rounded-lg focus:outline-none focus:ring-2 ${
+                fieldErrors.reviewText ? "border-red-500" : "focus:ring-blue-500"
+              }`}
+              placeholder="Share details about your experience..."
+            />
+            {fieldErrors.reviewText && (
+              <p className="text-red-500 text-sm mt-1">
+                {fieldErrors.reviewText}
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition"
           >
-            {[5, 4, 3, 2, 1].map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">Review</label>
-          <textarea
-            value={reviewText}
-            onChange={(e) => setReviewText(e.target.value)}
-            rows={5}
-            className="w-full border px-2 py-1 rounded"
-            placeholder="Write your review here..."
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Submit Review
-        </button>
-      </form>
+            {submitting ? "Submitting..." : "Submit Review"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
