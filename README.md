@@ -4,15 +4,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
-```bash
+# Next.js Frontend
+
+## Run Locally
+git clone https://github.com/your-username/your-frontend-repo.git
+cd your-frontend-repo
+npm install
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000/api" > .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
