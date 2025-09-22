@@ -7,8 +7,8 @@ First, run the development server:
 # Next.js Frontend
 
 ## Run Locally
-git clone https://github.com/your-username/your-frontend-repo.git
-cd your-frontend-repo
+git clone git@github.com:GerrisPrakash/glassdoor-clone-client.git
+cd glassdoor-clone-client
 npm install
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000/api" > .env.local
 npm run dev
